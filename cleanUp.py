@@ -4,25 +4,9 @@ import sys
 import shutil
 
 
-def list_installed_packages(python_executable):
-    """List installed pip packages."""
-    try:
-        result = subprocess.run(
-            [python_executable, "-m", "pip", "freeze"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        return result.stdout.strip().splitlines()
-    except Exception as e:
-        print(f"Error listing pip packages: {e}")
-        return []
-
-
 def remove_pip_packages(python_executable, exclude_packages):
     """Remove all pip-installed packages except exclusions."""
-    print(
-        f"Checking for pip-installed packages using Python at {python_executable}...")
+    print(f"Checking for pip-installed packages using Python at {python_executable}...")
     try:
         packages = list_installed_packages(python_executable)
         if not packages:
@@ -31,20 +15,38 @@ def remove_pip_packages(python_executable, exclude_packages):
 
         print(f"Found {len(packages)} pip-installed packages. Removing...")
         for package in packages:
-            # Handle package version strings
-            package_name = package.split("==")[0]
+            package_name = package.split("==")[0]  # Handle package version strings
             if package_name in exclude_packages:
                 print(f"Skipping excluded package: {package_name}")
                 continue
 
             print(f"Removing {package_name}...")
-            subprocess.run([python_executable, "-m", "pip",
-                           "uninstall", "-y", package_name], check=False)
-
+            # Build the command correctly
+            command = python_executable[:]
+            command += ["-m", "pip", "uninstall", "-y", package_name]
+            subprocess.run(command, check=False)
+            command = python_executable[:]
+            
         print("All eligible pip-installed packages have been removed.")
     except Exception as e:
         print(f"Error removing pip packages: {e}")
-
+ 
+def list_installed_packages(python_executable):
+    """List installed pip packages."""
+    try:
+        # Build the command correctly
+        command = python_executable[:] 
+        command += ["-m", "pip", "freeze"]
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return result.stdout.strip().splitlines()
+    except Exception as e:
+        print(f"Error listing pip packages: {e}")
+        return []
 
 def remove_poetry_packages(python_executable, remove_files):
     """Remove all packages installed via poetry and optionally delete configuration files."""
