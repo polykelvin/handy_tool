@@ -50,7 +50,7 @@ with open(output_file, "w", newline="", encoding="utf-8-sig") as csvfile:
     writer.writeheader()
 
     # Loop through pages
-    for page in range(1, 5):  # Set an upper limit for pages
+    for page in range(1, 1000):  # Set an upper limit for pages
         params_template["page"] = page  # Update the page number
         print(f"Fetching page {page}...")
 
